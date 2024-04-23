@@ -1,0 +1,80 @@
+﻿@model Applicants.Models.Applicant
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Applicant</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" asp-controller="Faculty" method="post" enctype="multipart/form-data">
+            @Html.ValidationSummary()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Id" class="control-label"></label>
+                <input asp-for="Id" class="form-control" readonly />
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Age" class="control-label"></label>
+                <input asp-for="Age" class="form-control" />
+                <span asp-validation-for="Age" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <label asp-for="ImageUrl" class="control-label"></label>
+                <input type="file" name="Picture" accept="/images*" class="form-control" />
+                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <td>Company Name</td>
+                        <td>Experience</td>
+                        <td><input type="submit" value="ADD" name="btn" class="btn btn-success" /></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Experience.Count; i++)
+                    {
+                        <tr>
+                            <td><input asp-for="Experience[i].CompanyName" class="form-control" /></td>
+                            <td><input asp-for="Experience[i].YearOfExperience" class="form-control" /></td>
+                            @* <td>@Html.EditorFor(model => Model.Students[i].StudentName, new { htmlAttributes = new { @class = "form-control" } })</td>
+                        <td>@Html.EditorFor(model => Model.Students[i].Address, new { htmlAttributes = new { @class = "form-control" } })</td> *@
+                            <td><input type="button" class="btn btn-danger" value="Delete" onclick="Remove(this)" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Create" name="btn" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        function Remove(e) {
+            e.closest("tr").remove();
+        }
+    </script>
+}
