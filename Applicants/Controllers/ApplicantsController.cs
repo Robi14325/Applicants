@@ -83,14 +83,64 @@ namespace Applicants.Controllers
             //}
             return View(applicants);
         }
-        public IActionResult Edit(int id)
+        public IActionResult Edit(int id) 
+        { 
+            return View(_context.Applicants.Include(f => f.Experience).Where(f => f.Id.Equals(id)).FirstOrDefault());
+        }
+        [HttpPost]
+        public IActionResult Edit(Applicant applicant, string btn)
         {
-            return View(_context.Applicants.Find(id));
+            if (btn == "ADD")
+            {
+                applicant.Experience.Add(new Experience());
+            }
+            if (btn == "Edit")
+            {
+                //if (ModelState.IsValid)
+                //{
+                var oldapplicant = _context.Applicants.Find(applicant.Id);
+                if (applicant.Image != null)
+                {
+                    // var ext = Path.GetExtension(faculty.Picture.FileName);
+                    var rootPath = this._webHostEnvironment.ContentRootPath;
+                    var fileToSave = Path.Combine(rootPath, "wwwroot/Pictures", applicant.Image.FileName);
+                    using (var fileStream = new FileStream(fileToSave, FileMode.Create))
+                    {
+                        applicant.Image.CopyToAsync(fileStream);
+                    }
+                    applicant.ImageUrl = "~/Pictures/" + applicant.Image.FileName;
+    
+                }
+                else
+                {
+                    oldapplicant.ImageUrl = oldapplicant.ImageUrl;
+                }
+                oldapplicant.Name = applicant.Name;
+                oldapplicant.Age = applicant.Age;
+            
+                _context.Experiences.RemoveRange(_context.Experiences.Where(s => s.ApplicantID == applicant.Id));
+                _context.SaveChanges();
+                oldapplicant.Experience = applicant.Experience;
+                _context.Entry(oldapplicant).State = EntityState.Modified;
+                if (_context.SaveChanges() > 0)
+                {
+                    return RedirectToAction("Index");
+                }
+                //}
+                else
+                {
+                    var message = string.Join(" | ", ModelState.Values
+                                                .SelectMany(v => v.Errors)
+                                                .Select(e => e.ErrorMessage));
+                    ModelState.AddModelError("", message);
+                }
+            }
+            return View(applicant);
         }
         public IActionResult Details(int id)
         {
             Applicant applicant = _context.Applicants.Include(a => a.Experience).FirstOrDefault(a => a.Id == id);
-
+    
             return View(applicant);
         }
         public ActionResult Delete(int id)
